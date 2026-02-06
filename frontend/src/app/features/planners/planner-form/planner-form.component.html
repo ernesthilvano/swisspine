@@ -1,0 +1,148 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Basic Information Section -->
+    <div class="form-section">
+        <h3>Basic Information</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Planner Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g., Q4 2024 Portfolio Analysis">
+            <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3" placeholder="Optional description"></textarea>
+        </mat-form-field>
+
+        <div class="form-row">
+            <mat-form-field appearance="outline">
+                <mat-label>Planner Type</mat-label>
+                <mat-select formControlName="plannerType">
+                    <mat-option *ngFor="let type of plannerTypes" [value]="type">{{ type }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>External System Connection</mat-label>
+            <mat-select formControlName="externalSystemConfigId">
+                <mat-option [value]="null">None</mat-option>
+                <mat-option *ngFor="let conn of externalConnections" [value]="conn.id">
+                    {{ conn.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Funds Section -->
+    <div class="form-section">
+        <div class="section-header">
+            <h3>Funds</h3>
+            <button mat-mini-fab color="primary" type="button" (click)="addFund()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+
+        <div formArrayName="funds" class="array-section">
+            <div *ngFor="let fund of fundsArray.controls; let i = index" [formGroupName]="i" class="array-item">
+                <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Fund</mat-label>
+                    <mat-select formControlName="fundId">
+                        <mat-option *ngFor="let f of funds" [value]="f.id">{{ f.name }}</mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="fund.get('fundId')?.hasError('required')">Fund is required</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="flex-1">
+                    <mat-label>Fund Alias (Optional)</mat-label>
+                    <input matInput formControlName="fundAlias" placeholder="e.g., Main Fund">
+                </mat-form-field>
+
+                <button mat-icon-button color="warn" type="button" (click)="removeFund(i)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+
+            <div *ngIf="fundsArray.length === 0" class="empty-message">
+                No funds added. Click the + button to add a fund.
+            </div>
+        </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Sources Section -->
+    <div class="form-section">
+        <div class="section-header">
+            <h3>Sources</h3>
+            <button mat-mini-fab color="primary" type="button" (click)="addSource()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+
+        <div formArrayName="sources" class="array-section">
+            <div *ngFor="let source of sourcesArray.controls; let i = index" [formGroupName]="i" class="source-item">
+                <div class="source-row">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Source Name</mat-label>
+                        <mat-select formControlName="sourceNameId">
+                            <mat-option *ngFor="let sn of sourceNames" [value]="sn.id">{{ sn.name }}</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="source.get('sourceNameId')?.hasError('required')">Required</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Run Name</mat-label>
+                        <mat-select formControlName="runNameId">
+                            <mat-option *ngFor="let rn of runNames" [value]="rn.id">{{ rn.name }}</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="source.get('runNameId')?.hasError('required')">Required</mat-error>
+                    </mat-form-field>
+
+                    <button mat-icon-button color="warn" type="button" (click)="removeSource(i)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+
+                <div class="source-row">
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Report Type</mat-label>
+                        <mat-select formControlName="reportTypeId">
+                            <mat-option *ngFor="let rt of reportTypes" [value]="rt.id">{{ rt.name }}</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="source.get('reportTypeId')?.hasError('required')">Required</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="flex-1">
+                        <mat-label>Report Name</mat-label>
+                        <mat-select formControlName="reportNameId">
+                            <mat-option *ngFor="let rpn of reportNames" [value]="rpn.id">{{ rpn.name }}</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="source.get('reportNameId')?.hasError('required')">Required</mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div *ngIf="sourcesArray.length === 0" class="empty-message">
+                No sources added. Click the + button to add a source.
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+        <button mat-button type="button" (click)="onCancel()">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!form.valid">
+            Save
+        </button>
+    </div>
+</form>

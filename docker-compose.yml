@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: swisspine-postgres
+    environment:
+      POSTGRES_DB: swisspine
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app -d swisspine" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swisspine-network
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: swisspine-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/swisspine
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_SHOW_SQL: "false"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_COM_SWISSPINE: DEBUG
+      SPRING_PROFILES_ACTIVE: seed-data
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - swisspine-network
+    restart: unless-stopped
+
+  # Angular Frontend with Node.js Dev Server
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: swisspine-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "4200:4200"
+    volumes:
+      # Mount source code for hot-reloading
+      - ./frontend/src:/app/src:ro
+    networks:
+      - swisspine-network
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  swisspine-network:
+    driver: bridge
+
+# Usage:
+# Start all services:      docker compose up -d
+# View logs:               docker compose logs -f
+# View frontend logs:      docker compose logs -f frontend
+# Stop services:           docker compose down
+# Remove volumes:          docker compose down -v
+# Rebuild after changes:   docker compose up -d --build

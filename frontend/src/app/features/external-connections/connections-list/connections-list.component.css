@@ -1,0 +1,47 @@
+.connections-container {
+    padding: 24px;
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 300;
+}
+
+.search-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: flex-start;
+}
+
+.search-field {
+    flex: 1;
+}
+
+.row-list {
+    margin-bottom: 24px;
+}
+
+.no-results {
+    text-align: center;
+    padding: 48px;
+    color: #999;
+    font-size: 16px;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}

@@ -1,0 +1,29 @@
+<div class="connection-row" [class.expanded]="isExpanded" (click)="onRowClick($event)">
+    <!-- Collapsed Header View -->
+    <div class="row-header" [class.header-expanded]="isExpanded">
+        <div class="connection-info">
+            <span class="connection-name">{{ connection.name }}</span>
+            <span class="connection-url">{{ connection.baseUrl }}</span>
+            <mat-chip *ngIf="connection.isDefault" selected class="default-chip">Default</mat-chip>
+        </div>
+
+        <div class="actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button matTooltip="Copy Connection" (click)="onCopy($event)">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete Connection" (click)="onDelete($event)">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-icon-button (click)="toggle.emit()">
+                <mat-icon>{{ isExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Expanded Form View -->
+    <div class="row-content" *ngIf="isExpanded" (click)="$event.stopPropagation()">
+        <app-connection-form [connection]="connection" [isInlineMode]="true" (save)="onSave($event)"
+            (cancel)="onCancel()">
+        </app-connection-form>
+    </div>
+</div>

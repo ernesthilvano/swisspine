@@ -1,0 +1,222 @@
+<div class="statistics-container">
+    <div class="header">
+        <h1>Performance Dashboard</h1>
+        <div class="header-actions">
+            <button mat-raised-button (click)="loadStatistics()" class="refresh-btn">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+            </button>
+            <button mat-raised-button [color]="autoRefresh ? 'accent' : ''" (click)="toggleAutoRefresh()"
+                class="auto-refresh-btn">
+                <mat-icon>{{autoRefresh ? 'pause' : 'play_arrow'}}</mat-icon>
+                Auto-refresh {{autoRefresh ? 'ON' : 'OFF'}}
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="loading && !statistics" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Loading performance statistics...</p>
+    </div>
+
+    <div *ngIf="error" class="error-container">
+        <mat-icon>error</mat-icon>
+        <p>{{error}}</p>
+        <button mat-raised-button color="primary" (click)="loadStatistics()">Retry</button>
+    </div>
+
+    <div *ngIf="statistics && !loading" class="dashboard-content">
+        <!-- System Overview Cards -->
+        <div class="metrics-row">
+            <mat-card class="metric-card">
+                <mat-card-header>
+                    <mat-icon class="card-icon">schedule</mat-icon>
+                    <mat-card-title>Uptime</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="metric-value">{{statistics.uptime}}</div>
+                    <div class="metric-label">System Running</div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="metric-card">
+                <mat-card-header>
+                    <mat-icon class="card-icon">storage</mat-icon>
+                    <mat-card-title>Total Records</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="metric-value">{{getTotalRecords() | number}}</div>
+                    <div class="metric-label">Database Entries</div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="metric-card">
+                <mat-card-header>
+                    <mat-icon class="card-icon">memory</mat-icon>
+                    <mat-card-title>Memory Usage</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="metric-value"
+                        [ngClass]="getStatusColor(getMemoryUsagePercentage(), {good: 70, warning: 85})">
+                        {{getMemoryUsagePercentage()}}%
+                    </div>
+                    <div class="metric-label">
+                        {{formatBytes(statistics.jvm.memoryUsed)}} / {{formatBytes(statistics.jvm.memoryMax)}}
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="metric-card">
+                <mat-card-header>
+                    <mat-icon class="card-icon">device_hub</mat-icon>
+                    <mat-card-title>Active Threads</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="metric-value">{{statistics.jvm.threadCount}}</div>
+                    <div class="metric-label">Thread Pool</div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Database Performance Section -->
+        <mat-card class="section-card">
+            <mat-card-header>
+                <mat-icon class="section-icon">dns</mat-icon>
+                <mat-card-title>Database Performance</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="database-grid">
+                    <!-- Connection Pool -->
+                    <div class="stat-block">
+                        <h3>Connection Pool</h3>
+                        <div class="pool-visual">
+                            <div class="pool-bar">
+                                <div class="pool-active"
+                                    [style.width.%]="(statistics.database.connectionPool.active / statistics.database.connectionPool.max) * 100">
+                                </div>
+                                <div class="pool-idle"
+                                    [style.width.%]="(statistics.database.connectionPool.idle / statistics.database.connectionPool.max) * 100">
+                                </div>
+                            </div>
+                            <div class="pool-legend">
+                                <span class="legend-item">
+                                    <span class="legend-color active"></span>
+                                    Active: {{statistics.database.connectionPool.active}}
+                                </span>
+                                <span class="legend-item">
+                                    <span class="legend-color idle"></span>
+                                    Idle: {{statistics.database.connectionPool.idle}}
+                                </span>
+                                <span class="legend-item">
+                                    Max: {{statistics.database.connectionPool.max}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Query Statistics -->
+                    <div class="stat-block">
+                        <h3>Query Statistics</h3>
+                        <div class="stat-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Queries</span>
+                                <span class="stat-value">{{statistics.database.queryStats.totalQueries | number}}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Avg Execution</span>
+                                <span
+                                    class="stat-value">{{formatTime(statistics.database.queryStats.avgExecutionTime)}}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Cache Hit Rate</span>
+                                <span
+                                    class="stat-value">{{formatPercentage(statistics.database.queryStats.cacheHitRate)}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Record Counts -->
+                    <div class="stat-block full-width">
+                        <h3>Database Records</h3>
+                        <div class="records-grid">
+                            <div *ngFor="let record of statistics.database.totalRecords | keyvalue" class="record-item">
+                                <span class="record-name">{{record.key}}</span>
+                                <span class="record-count">{{record.value | number}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- JVM Health Section -->
+        <mat-card class="section-card">
+            <mat-card-header>
+                <mat-icon class="section-icon">computer</mat-icon>
+                <mat-card-title>JVM Health</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="jvm-grid">
+                    <div class="jvm-item">
+                        <h4>Heap Memory</h4>
+                        <div class="memory-bar">
+                            <div class="memory-used" [style.width.%]="getMemoryUsagePercentage()"
+                                [ngClass]="getStatusColor(getMemoryUsagePercentage(), {good: 70, warning: 85})">
+                            </div>
+                        </div>
+                        <div class="memory-info">
+                            {{formatBytes(statistics.jvm.memoryUsed)}} / {{formatBytes(statistics.jvm.memoryMax)}}
+                            ({{getMemoryUsagePercentage()}}%)
+                        </div>
+                    </div>
+
+                    <div class="jvm-item">
+                        <h4>Garbage Collections</h4>
+                        <div class="gc-value">{{statistics.jvm.gcCount}}</div>
+                        <div class="gc-label">Total GC Events</div>
+                    </div>
+
+                    <div class="jvm-item">
+                        <h4>Thread Count</h4>
+                        <div class="thread-value">{{statistics.jvm.threadCount}}</div>
+                        <div class="thread-label">Active Threads</div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- API Endpoints (if available) -->
+        <mat-card class="section-card" *ngIf="getEndpointsArray().length > 0">
+            <mat-card-header>
+                <mat-icon class="section-icon">api</mat-icon>
+                <mat-card-title>API Endpoint Performance</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="endpoints-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Requests</th>
+                                <th>Avg Response</th>
+                                <th>P95 Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let endpoint of getEndpointsArray()">
+                                <td class="endpoint-name">{{endpoint.name}}</td>
+                                <td>{{endpoint.stats.requestCount | number}}</td>
+                                <td>{{formatTime(endpoint.stats.avgResponseTime)}}</td>
+                                <td>{{formatTime(endpoint.stats.p95ResponseTime)}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <div class="last-updated">
+            Last updated: {{statistics.timestamp | date:'medium'}}
+        </div>
+    </div>
+</div>

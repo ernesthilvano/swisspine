@@ -1,0 +1,96 @@
+.planner-row {
+    margin-bottom: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 300ms ease-in-out;
+}
+
+.planner-row:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.planner-row.expanded {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background-color 300ms ease-in-out;
+    min-height: 48px;
+}
+
+.row-header:hover {
+    background-color: #f5f5f5;
+}
+
+.row-header.header-expanded {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.row-header.header-expanded .planner-name,
+.row-header.header-expanded .planner-meta {
+    color: white;
+}
+
+.row-header.header-expanded .planner-type,
+.row-header.header-expanded .planner-owner,
+.row-header.header-expanded .planner-separator {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.row-header.header-expanded button {
+    color: white;
+}
+
+.planner-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.planner-name {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.planner-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+.planner-type,
+.planner-owner {
+    font-size: 13px;
+}
+
+.planner-separator {
+    color: #ccc;
+}
+
+.status-chip {
+    height: 24px;
+    font-size: 12px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.row-content {
+    padding: 16px;
+    background-color: #fafafa;
+    border-top: 1px solid #e0e0e0;
+}

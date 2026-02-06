@@ -1,0 +1,55 @@
+<div class="detail-container" *ngIf="!loading && planner">
+    <div class="header">
+        <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1>{{ planner.name }}</h1>
+    </div>
+
+    <mat-card class="info-card">
+        <mat-card-header>
+            <mat-card-title>Planner Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Status:</label>
+                    <mat-chip [color]="getStatusColor(planner.status)">{{ planner.status }}</mat-chip>
+                </div>
+
+                <div class="info-item">
+                    <label>Type:</label>
+                    <span>{{ planner.plannerType || 'N/A' }}</span>
+                </div>
+
+
+                <div class="info-item">
+                    <label>Created:</label>
+                    <span>{{ planner.createdAt | date:'short' }}</span>
+                </div>
+
+                <div class="info-item full-width" *ngIf="planner.description">
+                    <label>Description:</label>
+                    <p>{{ planner.description }}</p>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="relationships-card">
+        <mat-card-header>
+            <mat-card-title>Relationships & Configuration</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="info-message">
+                <mat-icon>info</mat-icon>
+                Detailed relationship data (funds, sources, runs, reports) will be loaded from additional API endpoints.
+                This view shows the planner's basic information.
+            </p>
+        </mat-card-content>
+    </mat-card>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+</div>

@@ -1,0 +1,50 @@
+<div class="planners-container">
+    <div class="header">
+        <h1>Planners</h1>
+        <button mat-raised-button color="primary" (click)="createNew()">
+            <mat-icon>add</mat-icon>
+            New Planner
+        </button>
+    </div>
+
+    <div class="filter-bar">
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search by name</mat-label>
+            <input matInput [(ngModel)]="searchQuery" (input)="onSearchChange()" placeholder="Type to search...">
+            <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filter by Status</mat-label>
+            <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
+                <mat-option value="">All Statuses</mat-option>
+                <mat-option *ngFor="let status of statuses.slice(1)" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <!-- New Planner Row (if creating) -->
+    <div class="row-list" *ngIf="!loading">
+        <app-planner-row *ngIf="newPlanner" [planner]="newPlanner" [isExpanded]="true" (save)="savePlanner($event)"
+            (toggle)="cancelNew()">
+        </app-planner-row>
+
+        <!-- Existing Planners -->
+        <app-planner-row *ngFor="let planner of planners" [planner]="planner" [isExpanded]="isExpanded(planner.id)"
+            (toggle)="toggleExpand(planner.id!)" (save)="savePlanner($event)" (deletePlanner)="deletePlanner(planner)"
+            (copyPlanner)="copyPlanner(planner)" (playPlanner)="playPlanner(planner)">
+        </app-planner-row>
+
+        <div class="no-results" *ngIf="planners.length === 0 && !newPlanner">
+            No planners found.
+        </div>
+    </div>
+
+    <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20, 50]"
+        (page)="onPageChange($event)" showFirstLastButtons>
+    </mat-paginator>
+
+    <div class="loading-container" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+    </div>
+</div>

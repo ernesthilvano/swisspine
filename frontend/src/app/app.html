@@ -1,0 +1,22 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span class="title">{{ title }}</span>
+    <span class="spacer"></span>
+    <button mat-button routerLink="/connections" routerLinkActive="active">
+      <mat-icon>cloud</mat-icon>
+      Connections
+    </button>
+    <button mat-button routerLink="/planners" routerLinkActive="active">
+      <mat-icon>dashboard</mat-icon>
+      Planners
+    </button>
+    <button mat-button routerLink="/statistics" routerLinkActive="active">
+      <mat-icon>analytics</mat-icon>
+      Statistics
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<div class="content">
+  <router-outlet></router-outlet>
+</div>

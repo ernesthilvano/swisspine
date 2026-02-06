@@ -1,0 +1,35 @@
+<div class="planner-row" [class.expanded]="isExpanded" (click)="onRowClick($event)">
+    <!-- Collapsed Header View -->
+    <div class="row-header" [class.header-expanded]="isExpanded">
+        <div class="planner-info">
+            <span class="planner-name">{{ planner.name }}</span>
+            <span class="planner-meta">
+                <span *ngIf="planner.plannerType" class="planner-type">{{ planner.plannerType }}</span>
+            </span>
+            <mat-chip [color]="getStatusColor(planner.status)" class="status-chip">
+                {{ planner.status }}
+            </mat-chip>
+        </div>
+
+        <div class="actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button matTooltip="Play/Run Planner" color="accent" (click)="onPlay($event)">
+                <mat-icon>play_arrow</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Copy Planner" (click)="onCopy($event)">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete Planner" (click)="onDelete($event)">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-icon-button (click)="toggle.emit()">
+                <mat-icon>{{ isExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Expanded Form View -->
+    <div class="row-content" *ngIf="isExpanded" (click)="$event.stopPropagation()">
+        <app-planner-form [planner]="planner" [isInlineMode]="true" (save)="onSave($event)" (cancel)="onCancel()">
+        </app-planner-form>
+    </div>
+</div>
